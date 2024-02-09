@@ -1,7 +1,7 @@
 import React from "react";
 import "./Chart.css";
-import { useState, useRef, useEffect } from "react";
-import * as d3 from "d3";
+import { useState, useEffect } from "react";
+import Chart2 from "./Chart2";
 const Chart = () => {
   const [stage1, setStage1] = useState({ temp: 95, time: "3:00" });
   const [stage2, setStage2] = useState([
@@ -14,47 +14,22 @@ const Chart = () => {
     { temp: 95, time: "3:00" },
   ]);
   const [activeStage, setActiveStage] = useState(null);
-  const [activePoint, setActivePoint] = useState(null);
+  const [activePoint, setActivePoint] = useState(0);
   const [temp, setTemp] = useState(0);
   const [time, setTime] = useState(0);
   const [data, setData] = useState([stage1, ...stage2, ...stage3]);
-  const svgRef = useRef();
+  const [tempArray, setTempArray] = useState([
+    stage1.temp,
+    ...stage2.map((item) => item.temp),
+    ...stage3.map((item) => item.temp),
+  ]);
 
   useEffect(() => {
-    d3.select(svgRef.current).selectAll("*").remove();
-    const tempsArray = [
+    setTempArray([
       stage1.temp,
       ...stage2.map((item) => item.temp),
       ...stage3.map((item) => item.temp),
-    ];
-
-    console.log("Data changed", data, data.length * 100 - 50);
-    const w = 100 * data.length - 75;
-    const h = 500;
-    const svg = d3.select(svgRef.current).attr("width", w).attr("height", h);
-
-    const xScale = d3
-      .scaleLinear()
-      .domain([0, data.length - 1])
-      .range([0, w]);
-
-    const yScale = d3.scaleLinear().domain([0, 100]).range([h, 0]);
-
-    const generateScaledLine = d3
-      .line()
-      .x((d, i) => xScale(i))
-      .y(yScale)
-      .curve(d3.curveCardinal);
-
-    svg
-      .selectAll(".line")
-      .data([tempsArray])
-      .join("path")
-      .attr("d", (d) => generateScaledLine(d))
-      .attr("fill", "none")
-      .attr("stroke", "rgb(255, 230, 118)");
-
-    console.log("here we are");
+    ]);
   }, [data]);
 
   //   insert before the active point
@@ -75,6 +50,8 @@ const Chart = () => {
       setStage3(updatedStage2);
     }
     setData([stage1, ...updatedStage2, ...stage3]);
+    setActiveStage(null);
+    setActivePoint(null);
   };
 
   //   insert afetr the active point
@@ -97,6 +74,8 @@ const Chart = () => {
       setStage3(updatedStage2);
     }
     setData([stage1, ...updatedStage2, ...stage3]);
+    setActiveStage(null);
+    setActivePoint(null);
   };
 
   const updateStage1 = () => {
@@ -104,120 +83,61 @@ const Chart = () => {
     setData([{ temp, time }, ...stage2, ...stage3]);
   };
 
+  console.log("sbdj", Math.round(800 / data.length));
+
   return (
     <>
-      <svg ref={svgRef} className="svg" />
       <div className="container">
         <div className="chart-container">
-          <div className="stage1">
-            <h4 className="stage-heading">Stage1</h4>
-            <div className="columns">
-              <div className="stage-column">
-                <div
-                  className={`${
-                    activeStage === 1 && activePoint === 1
-                      ? "point-active"
-                      : "point"
-                  }`}
-                  onClick={() => {
-                    console.log(activeStage);
-                    setActivePoint(activePoint === 1 ? null : 1);
-                    setActiveStage(activeStage === 1 ? null : 1);
-                    console.log(activeStage);
-                  }}
-                  style={{ top: `${100 - stage1.temp}%` }}
-                >
-                  <div
-                    style={{
-                      position: "absolute",
-                      display: "flex",
-                      gap: "10px",
-                    }}
-                  >
-                    <h4>{stage1.temp}&#176;</h4>
-                    <h4>{stage1.time}</h4>
-                  </div>
-                </div>
-              </div>
-            </div>
+          {/* stage1 box  */}
+          <div className="stage1" style={{ width: `${800 / data.length}px` }}>
+            <h5>Stage1</h5>
           </div>
-          <div className="stage2">
-            <h4 className="stage-heading">Stage2</h4>
-            <div className="columns">
-              {stage2 &&
-                stage2.map((point, index) => {
-                  return (
-                    <div className="stage-column" key={index}>
-                      <div
-                        className={`${
-                          activePoint === index && activeStage === 2
-                            ? "point-active"
-                            : "point"
-                        }`}
-                        onClick={() => {
-                          setActivePoint(activePoint === index ? null : index);
-                          setActiveStage(activeStage === 2 ? null : 2);
-                        }}
-                        style={{ top: `${100 - point.temp}%` }}
-                      >
-                        <div
-                          style={{
-                            position: "absolute",
-                            display: "flex",
-                            gap: "10px",
-                          }}
-                        >
-                          <h4>{point.temp}&#176;</h4>
-                          <h4>{point.time}</h4>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-            </div>
+
+          {/* stage2 box  */}
+          <div
+            className="stage2"
+            style={{
+              width: `${(800 / data.length) * stage2.length}px`,
+              left: `${800 / data.length}px`,
+            }}
+          >
+            <h5>Stage2</h5>
           </div>
-          <div className="stage3">
-            <h4 className="stage-heading">Stage3</h4>
-            <div className="columns">
-              {stage3.map((point) => {
-                return (
-                  <div className="stage-column">
-                    <div
-                      className={`${
-                        activeStage === 3 &&
-                        activePoint === stage3.indexOf(point)
-                          ? "point-active"
-                          : "point"
-                      }`}
-                      onClick={() => {
-                        console.log(stage3.indexOf(point));
-                        setActivePoint(
-                          activePoint === stage3.indexOf(point)
-                            ? null
-                            : stage3.indexOf(point)
-                        );
-                        setActiveStage(activeStage === 3 ? null : 3);
-                      }}
-                      style={{ top: `${100 - point.temp}%` }}
-                    >
-                      <div
-                        style={{
-                          position: "absolute",
-                          display: "flex",
-                          gap: "10px",
-                        }}
-                      >
-                        <h4>{point.temp}&#176;</h4>
-                        <h4>{point.time}</h4>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+
+          {/* stage3 box  */}
+          <div
+            className="stage3"
+            style={{
+              width: `${(800 / data.length) * stage3.length}px`,
+              left: `${
+                800 / data.length + (800 / data.length) * stage2.length
+              }px`,
+            }}
+          >
+            <h5>Stage3</h5>
+          </div>
+
+          {/* chart box  */}
+          <div
+            style={{
+              marginTop: "50px",
+              width: "100%",
+              height: "100%",
+              zIndex: 1,
+            }}
+          >
+            <Chart2
+              chartData={tempArray}
+              stageTwoLen={stage2.length}
+              stageThreeLen={stage3.length}
+              setActivePoint={setActivePoint}
+              setActiveStage={setActiveStage}
+            />
           </div>
         </div>
 
+        {/* data container  */}
         <div className="data-container">
           <div className="data-tile">
             {data.map((point) => {
@@ -229,7 +149,7 @@ const Chart = () => {
               );
             })}
           </div>
-          {activeStage && (
+          {activeStage !== null && (
             <div className="action-tile">
               <div className="values">
                 <input

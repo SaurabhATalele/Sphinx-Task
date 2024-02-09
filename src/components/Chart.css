@@ -10,9 +10,10 @@
 }
 
 .chart-container {
+  position: relative;
   display: flex;
   justify-content: center;
-  width: 80vw;
+  width: 800px;
   height: 500px;
   background-color: rgb(255, 208, 0);
 }
@@ -29,9 +30,14 @@
 .stage1,
 .stage2,
 .stage3 {
+  position: absolute;
+  top: 0;
+  left: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /* justify-content: center; */
+  border-right: 1px solid red;
+  height: 100%;
 }
 
 .columns {
