@@ -1,7 +1,7 @@
 import React from "react";
 import "./Chart.css";
 import { useState, useEffect } from "react";
-import Chart2 from "./Chart2";
+import Chart2 from "./ChartVisualizer";
 const Chart = () => {
   const [stage1, setStage1] = useState({ temp: 95, time: "3:00" });
   const [stage2, setStage2] = useState([

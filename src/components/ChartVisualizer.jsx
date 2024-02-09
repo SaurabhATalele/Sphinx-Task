@@ -62,7 +62,13 @@ const Chart2 = ({ chartData, stageTwoLen, setActiveStage, setActivePoint }) => {
             align: "top",
             anchor: "end",
             formatter: function (value) {
-              return value; 
+              return value;
+            },
+          },
+          legend: {
+            display: false,
+            labels: {
+              color: "rgb(255, 99, 132)",
             },
           },
         },
